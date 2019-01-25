@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .box {
+        width: 1232px;
+        height: 100%;
+        margin: 0 auto;
+        overflow: hidden;
+      }
+      .title {
+        font-size: 30px;
+        text-align: center;
+        font-weight: 700;
+      }
+      .name,
+      .result {
+        width: 1210px;
+        height: auto;
+        padding: 10px;
+        list-style: none;
+        border: 1px solid #ccc;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        border-radius: 0.2em;
+      }
+      .name li,
+      .result li {
+        width: 100px;
+        height: 50px;
+        background: greenyellow;
+        text-align: center;
+        line-height: 50px;
+        font-size: 20px;
+        margin: 5px 5px;
+        border-radius: 0.2em;
+      }
+      .btn {
+        width: 100px;
+        height: 50px;
+        font-size: 20px;
+        padding: 0.3em 0.8em;
+        border: 1px solid #446d88;
+        background: #58a linear-gradient(hsla(0, 0%, 100%, 0.2), transparent);
+        border-radius: 0.2em;
+        color: white;
+        text-shadow: 0 -0.05em 0.05em rgba(0, 0, 0, 0.5);
+        line-height: 1.5;
+        cursor: pointer;
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <p class="title">随机点名系统</p>
+      <p class="currentTime" style="text-align: right"></p>
+      <ul class="name"></ul>
+      <button class="btn">开始</button>
+      <ul class="result" style="display: none; margin-top: 20px;"></ul>
+    </div>
+  </body>
+</html>
+<script src="./mock.js"></script>
+<script>
+  // 获取DOM元素
+  let ul = document.querySelector('.name')
+  let result = document.querySelector('.result')
+  let btn = document.querySelector('.btn')
+  let currentTime = document.querySelector('.currentTime')
+
+  // 定义全局变量
+  let timer = null
+  let integer = null
+
+  // 随机生成假数据，可以更换成自己的数据 nameArr=[]
+  let nameArr = Mock.mock({
+    'obj|55': ['@cname()']
+  }).obj
+
+  // 根据nameArr名字数组生成点名列表DOM
+  nameArr.forEach((item, index) => {
+    ul.innerHTML += `<li>${item}</li>`
+  })
+
+  // 开始按钮
+  btn.onclick = function() {
+    if (this.innerHTML === '开始') {
+      timer = setInterval(() => {
+        // 生成随机数
+        integer = rnd(0, nameArr.length - 1)
+
+        // 首先把所有的背景色还原
+        for (let i = 0; i < ul.children.length; i++) {
+          ul.children[i].style.background = 'greenyellow'
+        }
+
+        // 设置当前生成索引的背景色
+        ul.children[integer].style.background = 'red'
+      }, 50)
+      this.innerHTML = '停止'
+    } else {
+      clearInterval(timer)
+      this.innerHTML = '开始'
+      if (integer) {
+        result.style.display = 'flex'
+        result.innerHTML += `<li>${ul.children[integer].innerHTML}</li>`
+      }
+    }
+  }
+
+  //生成当前时间
+  getTime()
+  setInterval(getTime, 1000)
+
+  // 封装生成n-m之间的随机整数
+  function rnd(n, m) {
+    return Math.floor(Math.random() * (m - n + 1) + n)
+  }
+
+  // 封装获取当前时间
+  function getTime() {
+    let day = new Date()
+    let year = day.getFullYear()
+    let month = zeroize(day.getMonth() + 1)
+    let dat = zeroize(day.getDay())
+    let hours = zeroize(day.getHours())
+    let minitues = zeroize(day.getMinutes())
+    let second = zeroize(day.getSeconds())
+    currentTime.innerHTML = `${year}-${month}-${dat} ${hours}:${minitues}:${second}`
+  }
+
+  // 时间补零
+  function zeroize(params) {
+    return params < 10 ? `0${params}` : params
+  }
+</script>
